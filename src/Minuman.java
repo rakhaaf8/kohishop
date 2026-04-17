@@ -1,0 +1,12 @@
+public class Minuman extends Menu {
+    public Minuman(String kode, String nama, double harga) {
+        super(kode, nama, harga);
+    }
+
+    @Override
+    public double hitungPajak() {
+        if (harga < 50) return 0;
+        if (harga <= 55) return harga * 0.08;
+        return harga * 0.11;
+    }
+}

@@ -1,0 +1,5 @@
+# Mengabaikan semua file hasil compile Java
+*.class
+
+# Mengabaikan folder bin sepenuhnya
+bin/
