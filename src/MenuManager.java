@@ -3,8 +3,6 @@ import java.util.List;
 
 public class MenuManager implements WarnaTerminal{
     private List<Menu> daftarMenu;
-    final String RED = "\u001B[31m";
-    final String GREEN = "\u001B[32m";
     public MenuManager() {
         this.daftarMenu = new ArrayList<>();
         inisialisasiMenu();
