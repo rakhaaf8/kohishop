@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class OrderManager {
+public class OrderManager implements WarnaTerminal {
     private List<OrderItem> pesananUser;
     private MenuManager menuManager;
 
@@ -25,24 +25,57 @@ public class OrderManager {
             String inputKode = sc.nextLine().trim();
             
             if (inputKode.equalsIgnoreCase("CC")) {
-                System.out.println("Pesanan Dibatalkan. Program Berhenti.");
+                System.out.println(RED+"Pesanan Dibatalkan. Program Berhenti."+RESET);
                 System.exit(0);
             }
             if (inputKode.equalsIgnoreCase("DONE")) break;
             
             Menu menuPilihan = menuManager.cariMenu(inputKode);
             if (menuPilihan == null) {
-                System.out.println("Error: Kode menu tidak ditemukan!");
+                System.out.println(RED+"Error: Kode menu tidak ditemukan!"+RESET);
                 continue;
             }
-            
+
+            OrderItem itemExist = null;
+            int countMinuman = 0;
+            int countMakanan = 0;
+
+            for (OrderItem item : pesananUser) {
+                if (item.getMenu().getKode().equalsIgnoreCase(menuPilihan.getKode())) {
+                    itemExist = item;
+                }
+                
+                if (item.getMenu() instanceof Minuman) countMinuman++;
+                if (item.getMenu() instanceof Makanan) countMakanan++;
+            }
+
+            if (itemExist == null) {
+                if (menuPilihan instanceof Minuman && countMinuman >= 5) {
+                    System.out.println(RED+"Error: Anda sudah memesan 5 jenis minuman yang berbeda! (Maks 5 jenis)"+RESET);
+                    continue;
+                }
+                if (menuPilihan instanceof Makanan && countMakanan >= 5) {
+                    System.out.println(RED+"Error: Anda sudah memesan 5 jenis makanan yang berbeda! (Maks 5 jenis)"+RESET);
+                    continue;
+                }
+            }
+
+            int currentQty = (itemExist != null) ? itemExist.getQty() : 0;
+            int maxPorsi = (menuPilihan instanceof Minuman) ? 3 : 2;
+            int sisaKuota = maxPorsi - currentQty;
+
+            if (sisaKuota <= 0) {
+                System.out.println(RED+"Error: Kuantitas untuk " + menuPilihan.getNama() + " sudah mencapai batas maksimal (" + maxPorsi + " porsi)."+RESET);
+                continue;
+            }
+
             int qty = 0;
             while (true) {
-                System.out.print("Kuantitas untuk " + menuPilihan.getNama() + " (Enter=1, 'S'/'0'=skip, 'CC'=batal): ");
+                System.out.print("Kuantitas untuk " + menuPilihan.getNama() + " (Maks " + sisaKuota + ") (Enter=1, 'S'/'0'=skip, 'CC'=batal): ");
                 String qtyInput = sc.nextLine().trim();
                 
                 if (qtyInput.equalsIgnoreCase("CC")) {
-                    System.out.println("Pesanan Dibatalkan. Program Berhenti.");
+                    System.out.println(RED+"Pesanan Dibatalkan. Program Berhenti."+RESET);
                     System.exit(0);
                 }
                 
@@ -56,26 +89,46 @@ public class OrderManager {
                     try {
                         qty = Integer.parseInt(qtyInput);
                     } catch (Exception e) {
-                        System.out.println("Error: Input harus berupa angka!");
+                        System.out.println(RED+"Error: Input harus berupa angka!"+RESET);
                         continue;
                     }
                 }
                 
-                if (qty < 0) { System.out.println("Error: Tidak boleh negatif."); continue; }
-                if (menuPilihan instanceof Minuman && qty > 3) { System.out.println("Error: Minuman maksimal 3!"); continue; }
-                if (menuPilihan instanceof Makanan && qty > 2) { System.out.println("Error: Makanan maksimal 2!"); continue; }
+                if (qty < 0) { 
+                    System.out.println(RED+"Error: Tidak boleh negatif."+RESET); 
+                    continue; 
+                }
+                
+                if (qty > sisaKuota) {
+                    System.out.println(RED+"Error: Kuantitas melebihi batas! Sisa kuota Anda untuk menu ini adalah: " + sisaKuota+RESET);
+                    
+                    continue;
+                }
                 
                 break; 
             }
             
             if (qty > 0) {
-                pesananUser.add(new OrderItem(menuPilihan, qty));
+                if (itemExist != null) {
+                    itemExist.tambahQty(qty);
+                } else {
+                    pesananUser.add(new OrderItem(menuPilihan, qty));
+                }
             }
+
+            String formatKotak = "%-55s";
+            System.out.println();
             
-            System.out.println("\n--- Pesanan Sementara Saat Ini ---");
-            System.out.printf("%-5s | %-35s | %s\n", "KODE", "NAMA", "QTY");
+            String judulPesanan = "         --- PESANAN SEMENTARA SAAT INI ---" ;
+            System.out.printf(BG_WHITE + BLACK_TEXT + String.format(formatKotak, judulPesanan) + RESET + "\n");
+            
+
+            String headerPesanan = String.format("%-5s | %-35s | %-5s", "KODE", "NAMA", "QTY");
+            System.out.printf(BG_WHITE + BLACK_TEXT + String.format(formatKotak, headerPesanan) + RESET + "\n");
+            
             for (OrderItem item : pesananUser) {
-                System.out.printf("%-5s | %-35s | %d\n", item.getMenu().getKode(), item.getMenu().getNama(), item.getQty());
+                String barisPesanan = String.format("%-5s | %-35s | %-5d", item.getMenu().getKode(), item.getMenu().getNama(), item.getQty());
+                System.out.printf(BG_MGM_YELLOW + BLACK_TEXT + String.format(formatKotak, barisPesanan) + RESET + "\n");
             }
         }
     }

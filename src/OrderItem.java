@@ -9,6 +9,10 @@ public class OrderItem {
 
     public Menu getMenu() { return menu; }
     public int getQty() { return qty; }
+
+    public void tambahQty(int tambahan) {
+        this.qty += tambahan;
+    }
     
     public double getHargaNormalTotal() { return menu.getHarga() * qty; }
     public double getPajakTotal() { return menu.hitungPajak() * qty; }

@@ -1,9 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class MenuManager {
+public class MenuManager implements WarnaTerminal{
     private List<Menu> daftarMenu;
-
+    final String RED = "\u001B[31m";
+    final String GREEN = "\u001B[32m";
     public MenuManager() {
         this.daftarMenu = new ArrayList<>();
         inisialisasiMenu();
@@ -34,12 +35,26 @@ public class MenuManager {
     }
 
     public void tampilkanTabelMenu() {
-        System.out.println("\n--- TABEL MENU KESELURUHAN ---");
-        System.out.printf("%-5s | %-35s | %s\n", "KODE", "NAMA MENU", "HARGA");
-        System.out.println("-----------------------------------------------------");
+        String formatKotak = "%-55s"; 
+
+        System.out.println();
+        
+        String judul = "              --- TABEL MENU KOHISHOP ---";
+        System.out.printf(BG_WHITE + BLACK_TEXT + String.format(formatKotak, judul) + RESET + "\n");
+        
+        String headerKolom = String.format("%-5s | %-35s | %-5s", "KODE", "NAMA MENU", "HARGA");
+        System.out.printf(BG_WHITE + BLACK_TEXT + String.format(formatKotak, headerKolom) + RESET + "\n");
+        
+        String garis = "-------------------------------------------------------";
+        System.out.printf(BG_MGM_YELLOW + BLACK_TEXT + String.format(formatKotak, garis) + RESET + "\n");
+        
         for (Menu m : daftarMenu) {
-            System.out.printf("%-5s | %-35s | %.0f\n", m.getKode(), m.getNama(), m.getHarga());
+            String baris = String.format("%-5s | %-35s | %.0f", m.getKode(), m.getNama(), m.getHarga());
+            System.out.printf(BG_MGM_YELLOW + BLACK_TEXT + String.format(formatKotak, baris) + RESET + "\n");
         }
+        
+
+        System.out.printf(BG_MGM_YELLOW + BLACK_TEXT + String.format(formatKotak, garis) + RESET + "\n");
     }
 
     public Menu cariMenu(String kode) {
